@@ -9,6 +9,56 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     // ========================================
+    // Animated Counter Numbers
+    // ========================================
+    const statNumbers = document.querySelectorAll('.stat-number');
+    let countersAnimated = false;
+    
+    function animateCounters() {
+        if (countersAnimated) return;
+        
+        statNumbers.forEach(stat => {
+            const target = parseInt(stat.getAttribute('data-count'));
+            const duration = 2000;
+            const startTime = performance.now();
+            
+            function updateCounter(currentTime) {
+                const elapsed = currentTime - startTime;
+                const progress = Math.min(elapsed / duration, 1);
+                const easeOutExpo = progress === 1 ? 1 : 1 - Math.pow(2, -10 * progress);
+                const currentValue = Math.floor(easeOutExpo * target);
+                
+                stat.textContent = currentValue.toLocaleString();
+                
+                if (progress < 1) {
+                    requestAnimationFrame(updateCounter);
+                } else {
+                    stat.textContent = target.toLocaleString();
+                    if (target >= 1000) stat.textContent = target.toLocaleString() + '+';
+                    else stat.textContent = '+' + target;
+                }
+            }
+            
+            requestAnimationFrame(updateCounter);
+        });
+        
+        countersAnimated = true;
+    }
+
+    const heroSection = document.getElementById('inicio');
+    const statObserver = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                setTimeout(animateCounters, 500);
+            }
+        });
+    }, { threshold: 0.3 });
+
+    if (heroSection) {
+        statObserver.observe(heroSection);
+    }
+
+    // ========================================
     // Navbar Scroll Effect
     // ========================================
     const navbar = document.getElementById('navbar');
